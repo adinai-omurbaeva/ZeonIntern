@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'mysite',
     'ckeditor',
     'ckeditor_uploader',
+    'rest_framework',
+    'drf_multiple_model',
 ]
 
 MIDDLEWARE = [
@@ -173,3 +175,7 @@ STATICFILES_DIRS = (
 os.path.join(PROJECT_ROOT, 'assets'),
  
 )
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 8
+}
