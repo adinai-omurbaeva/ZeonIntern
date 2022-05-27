@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Collection, News, PublicOffer, AboutUs, QA, QAImage
+from .models import Collection, News, PublicOffer, AboutUs, QA, QAImage, Product, ProductColor, ProductImage
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 
 class CollectionSerializer(serializers.HyperlinkedModelSerializer):
@@ -32,3 +32,24 @@ class QAImageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = QAImage
         fields = ('image',)
+
+class ProductSerializer(serializers.HyperlinkedModelSerializer):
+    p_image = serializers.SerializerMethodField("get_p_images")
+    class Meta:
+        model = Product
+        fields = ('p_image','name', 'collection', 'articul', 'price', 'old_price', 'discount', 'description', 'size', 'fabric_structure', 'amount', 'material', 'hit', 'new')
+    def get_p_images(self, newproduct):
+        my_image = ProductImage.objects.filter(product=newproduct.id)
+        final_image = ProductImageSerializer(instance = my_image, many = True)
+        #return final_image
+
+
+class ProductColorSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ProductColor
+        fields = ('product', 'color')
+
+class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ('product', 'images')

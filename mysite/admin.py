@@ -75,6 +75,7 @@ class MainPageAdmin(admin.ModelAdmin):
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('name', 'phone','date','feedback_type', 'status')
     search_fields = ('name', 'phone')
     list_filter = ('status',)
     ordering = ('date', 'name')

@@ -38,7 +38,7 @@ urlpatterns = [
     path('api/collections', include(router.urls)),
     path('api/news', include(newsrouter.urls)),
     path('api/publicoffer', include(publicoffer_router.urls)),
-    #path('api/qa', include(qa_router.urls)),
+    path('api/product', views.ProductView.as_view()),
     path('api/qa', views.QAAPIView.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

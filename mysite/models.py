@@ -64,6 +64,12 @@ class News(models.Model):
 class QA(models.Model):
     question = models.TextField(verbose_name='Вопрос')
     answer = models.TextField(verbose_name='Ответ')
+    def save(self, *args, **kwargs):
+        if not self.pk and QA.objects.exists():
+        # if you'll not check for self.pk 
+        # then error will also raised in update of exists model
+            raise ValidationError('Может существовать только одно изображение')
+        return super(QA, self).save(*args, **kwargs)
     class Meta:
         verbose_name_plural = 'Помощь'
         verbose_name = "Помощь"
@@ -86,6 +92,12 @@ class AboutUs(models.Model):
     image3 = models.ImageField(verbose_name='Изображение 3')
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     description = RichTextField(verbose_name='Описание')
+    def save(self, *args, **kwargs):
+        if not self.pk and AboutUs.objects.exists() and AboutUs.objects.all().count()>=4:
+        # if you'll not check for self.pk 
+        # then error will also raised in update of exists model
+            raise ValidationError('Может быть только 4 блока')
+        return super(AboutUs, self).save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.title
@@ -107,8 +119,9 @@ class Feedback(models.Model):
     )
     name = models.CharField(max_length=255, verbose_name='Имя')
     phone = models.CharField(max_length=255, verbose_name='Телефон')
-    date = models.DateField(verbose_name='Дата')
-    status = models.CharField(max_length=10, choices=STATUS_CHOISES, verbose_name='Статус')
+    date = models.DateField(verbose_name='Дата',auto_now_add=True, blank=True)
+    feedback_type = models.CharField(max_length=255, verbose_name='Тип обращения', default='Обратный звонок')
+    status = models.CharField(max_length=10, choices=STATUS_CHOISES, verbose_name='Статус', default='no')
     class Meta:
         verbose_name_plural = 'Обратная связь'
         verbose_name = "Обратная связь"
@@ -116,6 +129,11 @@ class Feedback(models.Model):
 class MainPage(models.Model):
     image = models.ImageField(verbose_name='Изображение')
     link = models.URLField(verbose_name='Ссылка', null=True, blank=True)
+    def save(self, *args, **kwargs):
+        if not self.pk and MainPage.objects.exists():
+            raise ValidationError('Может быть только 1 главная страница')
+        return super(MainPage, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = 'Главная страница'
         verbose_name = "Главная страница"

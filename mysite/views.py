@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 
-from .serializers import CollectionSerializer, NewsSerializer, PublicOfferSerializer, AboutUsSerializer, QAImageSerializer, QASerializer
-from .models import Collection, News, PublicOffer, AboutUs, QAImage, QA
+from .serializers import CollectionSerializer, NewsSerializer, PublicOfferSerializer, AboutUsSerializer, QAImageSerializer, QASerializer, ProductColorSerializer, ProductImageSerializer, ProductSerializer
+from .models import Collection, News, PublicOffer, AboutUs, QAImage, QA, ProductImage, ProductColor, Product
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 
 class QAAPIView(ObjectMultipleModelAPIView):
@@ -12,6 +12,11 @@ class QAAPIView(ObjectMultipleModelAPIView):
         {'queryset': QA.objects.all(), 'serializer_class': QASerializer},
     ]
 
+class ProductView(ObjectMultipleModelAPIView):
+    pagination_class = None
+    querylist = [
+         {'queryset': Product.objects.all(), 'serializer_class': ProductSerializer},
+    ]
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all().order_by('name')
     serializer_class = CollectionSerializer
