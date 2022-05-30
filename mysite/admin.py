@@ -3,7 +3,7 @@ from django.forms import inlineformset_factory
 from django import forms
 
 # Register your models here.
-from .models import Product, ProductImage, ProductColor, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback
+from .models import Product, ProductImage, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback, Footer, FooterLink
 
 class CategoryChoiceField(forms.ModelChoiceField):
      def label_from_instance(self, obj):
@@ -14,11 +14,6 @@ class ProductInlineAdmin(admin.StackedInline):
     max_num = 8
     model = ProductImage
 
-class ProductColorInline(admin.StackedInline):
-    extra = 1
-    max_num = 8
-    model = ProductColor
-
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -26,7 +21,7 @@ class ProductAdmin(admin.ModelAdmin):
             return CategoryChoiceField(queryset=Collection.objects.all())
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    inlines = [ProductInlineAdmin, ProductColorInline]
+    inlines = [ProductInlineAdmin,]
     search_fields = ('name', 'price')
     list_filter = ('name', 'price')
     ordering = ('name', 'price')
@@ -36,11 +31,6 @@ class ProductAdmin(admin.ModelAdmin):
  
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
-    get_model_perms = lambda self, req: {}
-    
-
-@admin.register(ProductColor)
-class ProductColorAdmin(admin.ModelAdmin):
     get_model_perms = lambda self, req: {}
     
 
@@ -79,3 +69,12 @@ class FeedbackAdmin(admin.ModelAdmin):
     search_fields = ('name', 'phone')
     list_filter = ('status',)
     ordering = ('date', 'name')
+
+@admin.register(FooterLink)
+class FooterLinkAdmin(admin.ModelAdmin):
+    list_display = ('link_type', 'link',)
+
+@admin.register(Footer)
+class FooterAdmin(admin.ModelAdmin):
+    list_display = ("info",'logo', 'number','get_link')
+  

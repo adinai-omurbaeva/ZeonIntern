@@ -1,55 +1,65 @@
 from rest_framework import serializers
-
-from .models import Collection, News, PublicOffer, AboutUs, QA, QAImage, Product, ProductColor, ProductImage
+from rest_framework.response import Response
+from .models import Collection, News, PublicOffer, AboutUs, QA, QAImage, Product, Feedback, ProductImage, Footer, FooterLink
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 
-class CollectionSerializer(serializers.HyperlinkedModelSerializer):
+class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         fields = ('id','name', 'image')
 
-class NewsSerializer(serializers.HyperlinkedModelSerializer):
+class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = ('image', 'title', 'description')
 
-class PublicOfferSerializer(serializers.HyperlinkedModelSerializer):
+class PublicOfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = PublicOffer
         fields = ('title', 'description')
 
-class AboutUsSerializer(serializers.HyperlinkedModelSerializer):
+class AboutUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutUs
         fields = ('image1', 'image2','image3', 'title', 'description')
     
-class QASerializer(serializers.HyperlinkedModelSerializer):
+class QASerializer(serializers.ModelSerializer):
     class Meta:
         model = QA
         fields = ('question', 'answer')
 
-class QAImageSerializer(serializers.HyperlinkedModelSerializer):
+class QAImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = QAImage
         fields = ('image',)
 
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     p_image = serializers.SerializerMethodField("get_p_images")
     class Meta:
         model = Product
         fields = ('p_image','name', 'collection', 'articul', 'price', 'old_price', 'discount', 'description', 'size', 'fabric_structure', 'amount', 'material', 'hit', 'new')
-    def get_p_images(self, newproduct):
-        my_image = ProductImage.objects.filter(product=newproduct.id)
+    def get_p_images(self, newproduct):   
+        my_image = ProductImage.objects.filter(product=newproduct)
         final_image = ProductImageSerializer(instance = my_image, many = True)
-        #return final_image
+        return final_image.data
 
 
-class ProductColorSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = ProductColor
-        fields = ('product', 'color')
-
-class ProductImageSerializer(serializers.HyperlinkedModelSerializer):
+class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
-        fields = ('product', 'images')
+        fields = ('product', 'images', 'color')
+    
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ('name', 'phone', 'date', 'feedback_type', 'status')
+
+class FooterLinkSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = FooterLink
+        fields = ('link_type', 'link')
+
+class FooterSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Footer
+        fields = ('logo', 'info','number', 'get_link')

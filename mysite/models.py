@@ -32,21 +32,20 @@ class Product(models.Model):
     class Meta:
         verbose_name_plural = 'Товары'
         verbose_name = "Товар"
+    #def get_image(self):
+     #   my_dict = {}
+      #  for p in ProductImage.objects.filter(product=self.id):
+       #     my_dict.update({p.images:p.})
+        #return my_dict
     
     
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, default=None, on_delete=models.CASCADE)
     images = models.ImageField(upload_to = 'images/', verbose_name='Изображение')
-    class Meta:
-        verbose_name_plural = 'Изображения товара'
-        verbose_name = "Изображение товара"
-
-class ProductColor(models.Model):
-    product = models.ForeignKey(Product, default=None, on_delete=models.CASCADE)
     color = ColorField(verbose_name='Цвет')
     class Meta:
-        verbose_name_plural = 'Цвета товара'
-        verbose_name = "Цвет товара"
+        verbose_name_plural = 'Изображение и цвет товара'
+        verbose_name = "Изображение и цвет товара"
 
 class News(models.Model):
     title = models.CharField(max_length=255, verbose_name='Заголовок')
@@ -56,18 +55,16 @@ class News(models.Model):
         return self.title
     class Meta:
         db_table = 'news'
-        # Add verbose name
         verbose_name_plural = 'Новости'
         verbose_name = "Новость"
 
 
 class QA(models.Model):
+    """ test"""
     question = models.TextField(verbose_name='Вопрос')
     answer = models.TextField(verbose_name='Ответ')
     def save(self, *args, **kwargs):
         if not self.pk and QA.objects.exists():
-        # if you'll not check for self.pk 
-        # then error will also raised in update of exists model
             raise ValidationError('Может существовать только одно изображение')
         return super(QA, self).save(*args, **kwargs)
     class Meta:
@@ -76,12 +73,11 @@ class QA(models.Model):
 
 class QAImage(models.Model):
     image = models.ImageField(verbose_name='Изображение')
-    def save(self, *args, **kwargs):
-        if not self.pk and QAImage.objects.exists():
-        # if you'll not check for self.pk 
-        # then error will also raised in update of exists model
-            raise ValidationError('Может существовать только одно изображение')
-        return super(QAImage, self).save(*args, **kwargs)
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 1:
+            return False
+        return super().has_add_permission(request)
+
     class Meta:
         verbose_name_plural = 'Изображение страницы помощи'
         verbose_name = "Изображение страницы помощи"
@@ -92,12 +88,12 @@ class AboutUs(models.Model):
     image3 = models.ImageField(verbose_name='Изображение 3')
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     description = RichTextField(verbose_name='Описание')
-    def save(self, *args, **kwargs):
-        if not self.pk and AboutUs.objects.exists() and AboutUs.objects.all().count()>=4:
-        # if you'll not check for self.pk 
-        # then error will also raised in update of exists model
-            raise ValidationError('Может быть только 4 блока')
-        return super(AboutUs, self).save(*args, **kwargs)
+    
+    
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 1:
+            return False
+        return super().has_add_permission(request)
 
     def __str__(self) -> str:
         return self.title
@@ -145,3 +141,42 @@ class Advantages(models.Model):
     class Meta:
         verbose_name_plural = 'Главная страница'
         verbose_name = "Главная страница"
+
+
+class FooterLink(models.Model):
+    LINK_CHOISES = (
+        ("whatsapp", 'Whats app'),
+        ("phone", 'Номер'),
+        ("email", 'Почта'),
+        ("instagram", 'Instagram'),
+        ("telegram", 'Telegram'),
+    )
+    link_type = models.CharField(max_length=50, choices=LINK_CHOISES, verbose_name='Тип')
+    link = models.CharField(max_length=255, verbose_name='Ссылка')
+    def save(self, *args, **kwargs):
+        if self.link_type == 'whatsapp':
+            self.link = 'https://wa.me/'+self.link
+            super(FooterLink, self).save(*args, **kwargs)
+        else:
+            super(FooterLink, self).save(*args, **kwargs)
+    def __str__(self):
+        return '{}, {}'.format(self.link_type, self.link)
+    class Meta:
+        verbose_name_plural = 'Ссылки'
+        verbose_name = "Ссылка"
+    
+class Footer(models.Model):
+    logo = models.ImageField(verbose_name='Логотип')
+    info = models.CharField(verbose_name='Информация', max_length=255)
+    number = models.PositiveIntegerField(verbose_name='Номер в хедере')
+    footer_link = models.ManyToManyField(FooterLink)
+
+    def get_link(self):
+        my_dict = {}
+        for p in self.footer_link.all():
+            my_dict.update({p.link_type:p.link})
+        return my_dict
+    class Meta:
+        verbose_name_plural = 'Футер'
+        verbose_name = "Футер"
+        
