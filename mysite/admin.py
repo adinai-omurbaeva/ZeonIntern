@@ -3,8 +3,8 @@ from django.forms import inlineformset_factory
 from django import forms
 
 # Register your models here.
-from .models import Product, ProductImage, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback, Footer, FooterLink
-
+from .models import Product, ProductImage, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback, Footer, FooterLink, Advantages, Favorite
+# from . import models
 class CategoryChoiceField(forms.ModelChoiceField):
      def label_from_instance(self, obj):
          return "{}".format(obj.name)
@@ -50,10 +50,22 @@ class QAAdmin(admin.ModelAdmin):
 @admin.register(QAImage)
 class QAImageAdmin(admin.ModelAdmin):
     list_display = ('image',)
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 1:
+            return False
+        else:
+            return True
+        return super(QAImage, self).has_add_permission(request, obj)
 
 @admin.register(AboutUs)
 class AboutUsAdmin(admin.ModelAdmin):
     list_display = ('image1','image2','image3','title',  'description')
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 1:
+            return False
+        else:
+            return True
+        return super(QAImage, self).has_add_permission(request, obj)
 
 @admin.register(PublicOffer)
 class PublicOfferAdmin(admin.ModelAdmin):
@@ -62,6 +74,7 @@ class PublicOfferAdmin(admin.ModelAdmin):
 @admin.register(MainPage)
 class MainPageAdmin(admin.ModelAdmin):
     list_display = ('image', 'link')
+    
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
@@ -77,4 +90,25 @@ class FooterLinkAdmin(admin.ModelAdmin):
 @admin.register(Footer)
 class FooterAdmin(admin.ModelAdmin):
     list_display = ("info",'logo', 'number','get_link')
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 1:
+            return False
+        else:
+            return True
+        return super(QAImage, self).has_add_permission(request, obj)
+
+@admin.register(Advantages)
+class AdvantagesAdmin(admin.ModelAdmin):
+    list_display = ('title', 'icon', 'description')
+
+class FavoriteForm(forms.ModelForm):
+    def clean(self):
+        my_product = self.cleaned_data['product']
+        if Favorite.objects.filter(product = my_product):
+            raise forms.ValidationError({'product': "Этот товар уже в избранном"})
   
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    form = FavoriteForm
+    list_display = ('product',)
+
