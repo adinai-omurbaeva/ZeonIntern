@@ -3,7 +3,7 @@ from django.forms import inlineformset_factory
 from django import forms
 
 # Register your models here.
-from .models import Product, ProductImage, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback, Footer, FooterLink, Advantages, Favorite
+from .models import Product, ProductImage, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback, Footer, FooterLink, Advantages
 # from . import models
 class CategoryChoiceField(forms.ModelChoiceField):
      def label_from_instance(self, obj):
@@ -107,8 +107,3 @@ class FavoriteForm(forms.ModelForm):
         if Favorite.objects.filter(product = my_product):
             raise forms.ValidationError({'product': "Этот товар уже в избранном"})
   
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    form = FavoriteForm
-    list_display = ('product',)
-

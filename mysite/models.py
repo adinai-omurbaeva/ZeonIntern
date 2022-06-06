@@ -28,6 +28,7 @@ class Product(models.Model):
     material = models.CharField(max_length=255, null=True, blank=True,verbose_name='Материал')
     hit = models.BooleanField(default=False,verbose_name='Хит продаж')
     new = models.BooleanField(default=False,verbose_name='Новинки')
+    is_favorite = models.BooleanField(default=False, verbose_name='Избранное')
     def save(self, *args, **kwargs):
         if self.old_price != 0 and self.old_price > self.price:
             self.discount = int(self.old_price - self.price)
@@ -177,9 +178,3 @@ class OrderUserInfo(models.Model):
     class Meta:
         verbose_name_plural = 'Информация пользователя'
         verbose_name = "Информация пользователя"
-
-class Favorite(models.Model):
-    product = models.ForeignKey(Product, blank=True, verbose_name='Товары', on_delete=models.CASCADE, null=True) 
-    class Meta:
-        verbose_name_plural = 'Избранное'
-        verbose_name = "Избранное"

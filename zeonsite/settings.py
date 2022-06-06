@@ -184,3 +184,5 @@ REST_FRAMEWORK = {
 }
 
 CART_SESSION_ID = 'cart'
+
+FAVORITE_SESSION_ID = 'favorite'

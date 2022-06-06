@@ -37,7 +37,7 @@ footer_router = routers.DefaultRouter()
 footer_router.register(r'footer', views.FooterViewSet)
 
 favorite_router = routers.DefaultRouter()
-favorite_router.register(r'favorite', views.FavoriteView)
+favorite_router.register(r'favorite', views.FavoriteProductsView)
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -62,6 +62,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/feedback', views.new_feedback),
     path('api/footer', include(footer_router.urls)),
-    path('api/favorite', include(favorite_router.urls)),
     path('', schema_view.with_ui()),
+    path('api/favorite', include(favorite_router.urls)),
+    path('api/product/<int:pk>', views.ProductDetailView.as_view()),
 ]
