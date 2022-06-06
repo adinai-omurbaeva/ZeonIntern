@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.response import Response
-from .models import Collection, News, PublicOffer, AboutUs, QA, QAImage, Product, Feedback, ProductImage, Footer, FooterLink
+from .models import Collection, News, PublicOffer, AboutUs, QA, QAImage, Product, Advantages, Feedback, ProductImage, Footer, FooterLink
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -67,3 +67,8 @@ class FooterSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Footer
         fields = ('logo', 'info','number', 'get_link')
+
+class AdvantagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Advantages
+        fields = '__all__'

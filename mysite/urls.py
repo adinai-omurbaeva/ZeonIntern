@@ -39,6 +39,17 @@ footer_router.register(r'footer', views.FooterViewSet)
 favorite_router = routers.DefaultRouter()
 favorite_router.register(r'favorite', views.FavoriteProductsView)
 
+collection_detail_router = routers.DefaultRouter()
+collection_detail_router.register(r'collection', views.CollectionDetailViewSet,basename='CollectionsDetail')
+
+newproducts_router = routers.DefaultRouter()
+newproducts_router.register(r'new_products', views.NewProductsViewSet)
+
+product_router = routers.DefaultRouter()
+product_router.register(r'products', views.ProductView)
+
+
+
 schema_view = get_schema_view(
    openapi.Info(
       title="Snippets API",
@@ -53,16 +64,20 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('api/aboutus', include(aboutus_router.urls)),
-    path('api/collections', include(router.urls)),
-    path('api/news', include(newsrouter.urls)),
-    path('api/publicoffer', include(publicoffer_router.urls)),
-    path('api/product', views.ProductView.as_view()),
+    path('api/', include(aboutus_router.urls)),
+    path('api/', include(router.urls)),
+    path('api/', include(newsrouter.urls)),
+    path('api/', include(publicoffer_router.urls)),
+    path('api/', include(product_router.urls)),
     path('api/qa', views.QAAPIView.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/feedback', views.new_feedback),
-    path('api/footer', include(footer_router.urls)),
+    path('api/', include(footer_router.urls)),
     path('', schema_view.with_ui()),
-    path('api/favorite', include(favorite_router.urls)),
-    path('api/product/<int:pk>', views.ProductDetailView.as_view()),
+    path('api/', include(favorite_router.urls)),
+    path('api/productdetail/<int:pk>', views.ProductDetailView.as_view()),
+    path('api/mainpage/', views.MainPageView.as_view()),
+    path('api/detail/<int:pk>/', include(collection_detail_router.urls)),
+    path('api/', include(newproducts_router.urls)),
+    path('api/search/', views.SearchProductView.as_view()),
 ]

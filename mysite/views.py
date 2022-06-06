@@ -3,14 +3,33 @@ from rest_framework import viewsets
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from .serializers import CollectionSerializer, NewsSerializer, PublicOfferSerializer, AboutUsSerializer, QAImageSerializer, QASerializer, ProductSerializer, FeedbackSerializer, FooterSerializer, FooterLinkSerializer
-from .models import Collection, News, PublicOffer, AboutUs, QAImage, QA, Product, Feedback, Footer, FooterLink
+from .serializers import CollectionSerializer,AdvantagesSerializer, NewsSerializer, PublicOfferSerializer, AboutUsSerializer, QAImageSerializer, QASerializer, ProductSerializer, FeedbackSerializer, FooterSerializer, FooterLinkSerializer
+from .models import Collection, News, PublicOffer, Advantages,AboutUs, QAImage, QA, Product, Feedback, Footer, FooterLink
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 from itertools import chain 
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filters
+import random
+
+
+class LargePaginaton(PageNumberPagination):
+    page_size = 12
+
+class FivePagination(PageNumberPagination):
+    page_size = 5
+
+class ProductsFilter(filters.FilterSet):
+    # Пользовательский класс фильтрации товаров
+    name = filters.CharFilter(field_name = 'name', lookup_expr='icontains')
+    class Meta:
+        model = Product
+        fields = ['name', ]
 
 @api_view(['POST'])
 def new_feedback(request):
@@ -42,12 +61,37 @@ class ProductDetailView(ObjectMultipleModelAPIView):
         return querylist
     
     
-
-class ProductView(ObjectMultipleModelAPIView):
+class MainPageView(ObjectMultipleModelAPIView):
     pagination_class = None
     querylist = [
-         {'queryset': Product.objects.all(), 'serializer_class': ProductSerializer},
-    ]
+        {'queryset': Product.objects.filter(hit = True)[:8],'serializer_class': ProductSerializer},
+        {'queryset': Product.objects.filter(new=True)[:4],'serializer_class': ProductSerializer},
+        {'queryset': Collection.objects.all()[:4],'serializer_class': CollectionSerializer},
+        {'queryset': Advantages.objects.all()[:4],'serializer_class': AdvantagesSerializer},
+        ]
+class ProductView(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+class SearchProductView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['name',]
+    filter_class = ProductsFilter
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        filtered_queryset = self.filter_queryset(queryset)
+        if not filtered_queryset:
+            collections_id = set(queryset.values('collection').values())
+            collections_id_randomized = random.choice(tuple(collections_id), 5)
+            filtered_queryset = queryset.filter(collection__id__in=collections_id_randomized)
+        serializer = self.get_serializer(filtered_queryset, many=True)
+        return Response({'result': serializer.data})
+
 
 class FavoriteProductsView(viewsets.ModelViewSet):
     pagination_class = None
@@ -55,11 +99,11 @@ class FavoriteProductsView(viewsets.ModelViewSet):
         queryset = Product.objects.filter(is_favorite=True)
         serializer_class = ProductSerializer
     else:
-        # queryset = Product.objects.all().order_by('id')[:1]
         queryset = Product.objects.distinct('collection').all()
         serializer_class = ProductSerializer
 
 class CollectionViewSet(viewsets.ModelViewSet):
+    pagination_class = LargePaginaton
     queryset = Collection.objects.all().order_by('name')
     serializer_class = CollectionSerializer
 
@@ -82,3 +126,17 @@ class FooterViewSet(viewsets.ModelViewSet):
 class FooterLinkViewSet(viewsets.ModelViewSet):
     queryset = FooterLink.objects.all()
     serializer_class = FooterLinkSerializer
+
+class CollectionDetailViewSet(viewsets.ModelViewSet):
+    pagination_class = LargePaginaton
+    serializer_class = ProductSerializer
+    def get_queryset(self, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        my_collection = Collection.objects.get(id = pk)
+        queryset = Product.objects.filter(collection=my_collection)
+        return queryset
+
+class NewProductsViewSet(viewsets.ModelViewSet):
+    pagination_class = FivePagination
+    queryset = Product.objects.filter(new = True)
+    serializer_class = ProductSerializer
