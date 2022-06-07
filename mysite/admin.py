@@ -3,7 +3,7 @@ from django.forms import inlineformset_factory
 from django import forms
 
 # Register your models here.
-from .models import Product, ProductImage, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback, Footer, FooterLink, Advantages
+from .models import Product, ProductImage,  CartProducts, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback, Footer, FooterLink, Advantages
 # from . import models
 class CategoryChoiceField(forms.ModelChoiceField):
      def label_from_instance(self, obj):
@@ -46,6 +46,11 @@ class CollectionAdmin(admin.ModelAdmin):
 @admin.register(QA)
 class QAAdmin(admin.ModelAdmin):
     list_display = ('question', 'answer')
+
+@admin.register(CartProducts)
+class OrderProductsAdmin(admin.ModelAdmin):
+    list_display = ('product', 'product_image', 'product_colour', 'name', 'size', 'price', 'old_price', 'amount')
+
 
 @admin.register(QAImage)
 class QAImageAdmin(admin.ModelAdmin):

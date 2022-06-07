@@ -3,7 +3,7 @@ from django.conf import settings
 from colorfield.fields import ColorField
 from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
-from .validators import validate_file_extension
+from .validators import validate_file_extension, validate_amount
 from rest_framework import permissions
 from django.contrib import messages
 # Create your models here.
@@ -33,18 +33,24 @@ class Product(models.Model):
         if self.old_price != 0 and self.old_price > self.price:
             self.discount = int(self.old_price - self.price)
         super(Product, self).save(*args, **kwargs)
+    def __str__(self):
+        return '{}'.format(self.name)
     class Meta:
         verbose_name_plural = 'Товары'
         verbose_name = "Товар"
+    
     
     
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, default=None, on_delete=models.CASCADE)
     images = models.ImageField(upload_to = 'images/', verbose_name='Изображение')
     color = ColorField(verbose_name='Цвет')
+    def __str__(self):
+        return '{}, {}'.format(self.id, self.product)
     class Meta:
         verbose_name_plural = 'Изображение и цвет товара'
         verbose_name = "Изображение и цвет товара"
+
 
 class News(models.Model):
     title = models.CharField(max_length=255, verbose_name='Заголовок')
@@ -71,6 +77,7 @@ class QAImage(models.Model):
     class Meta:
         verbose_name_plural = 'Изображение страницы помощи'
         verbose_name = "Изображение страницы помощи"
+
 
 class AboutUs(models.Model):
     image1 = models.ImageField(verbose_name='Изображение 1')
@@ -178,3 +185,50 @@ class OrderUserInfo(models.Model):
     class Meta:
         verbose_name_plural = 'Информация пользователя'
         verbose_name = "Информация пользователя"
+
+class CartProducts(models.Model):
+    product_image = models.ForeignKey(ProductImage, verbose_name="Id фото и продукт к которому привязан", on_delete=models.CASCADE)
+    product_colour = ColorField(verbose_name='Цвет', null=True, blank=True)
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, verbose_name='Название', null=True, blank=True)
+    size = models.CharField(max_length=255, verbose_name='Размер', null=True, blank=True)
+    price = models.PositiveIntegerField(verbose_name='Цена', null=True, blank=True)
+    old_price = models.PositiveIntegerField(default = 0,verbose_name='Старая цена', null=True, blank=True)
+    amount = models.PositiveIntegerField(default=1, verbose_name='Количество', validators=[validate_amount])
+    def save(self, *args, **kwargs):
+        self.product_colour = ProductImage.objects.get(id=self.product_image.id).color
+        my_product = Product.objects.get(id=self.product.id)
+        self.name = my_product.name
+        self.size = my_product.size
+        self.price = my_product.price
+        self.old_price = my_product.old_price
+        super(CartProducts, self).save(*args, **kwargs)
+    class Meta:
+        verbose_name_plural = 'Товары в корзине'
+        verbose_name = "Товар в корзине"
+
+class Order(models.Model):
+    user = models.ForeignKey(OrderUserInfo, verbose_name='Информация пользователя', on_delete=models.CASCADE)
+    amount_lines = models.PositiveIntegerField(verbose_name='Количество линеек')
+    amount_products = models.PositiveIntegerField(verbose_name='Количество товаров')
+    price = models.PositiveIntegerField(verbose_name='Стоимость')
+    discount = models.PositiveIntegerField(verbose_name='Скидка')
+    final_price = models.PositiveIntegerField(verbose_name='Итого к оплате')
+
+    class Meta:
+        verbose_name_plural = 'Заказы'
+        verbose_name = "Заказ"
+
+class OrderProduct(models.Model):
+    order = models.ForeignKey(Order, verbose_name='Заказ', on_delete=models.CASCADE)
+    product_image = models.ForeignKey(ProductImage, verbose_name="Id фото и продукт к которому привязан", on_delete=models.CASCADE)
+    product_colour = ColorField(verbose_name='Цвет', null=True, blank=True)
+    product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, verbose_name='Название', null=True, blank=True)
+    size = models.CharField(max_length=255, verbose_name='Размер', null=True, blank=True)
+    price = models.PositiveIntegerField(verbose_name='Цена', null=True, blank=True)
+    old_price = models.PositiveIntegerField(default = 0,verbose_name='Старая цена', null=True, blank=True)
+    amount = models.PositiveIntegerField(default=1, verbose_name='Количество', validators=[validate_amount])
+    class Meta:
+        verbose_name_plural = 'Товары в заказе'
+        verbose_name = "Товар в заказе"

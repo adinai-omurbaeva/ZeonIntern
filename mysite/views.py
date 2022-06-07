@@ -86,11 +86,16 @@ class SearchProductView(generics.ListAPIView):
         queryset = self.get_queryset()
         filtered_queryset = self.filter_queryset(queryset)
         if not filtered_queryset:
-            collections_id = set(queryset.values('collection').values())
-            collections_id_randomized = random.choice(tuple(collections_id), 5)
-            filtered_queryset = queryset.filter(collection__id__in=collections_id_randomized)
-        serializer = self.get_serializer(filtered_queryset, many=True)
-        return Response({'result': serializer.data})
+            collections_id = Collection.objects.values_list('id', flat=True)
+            collections_id_randomized = random.sample(list(collections_id), 5)
+            product_ids = []
+            for my_collection in collections_id_randomized:
+                my_product = queryset.filter(collection__id=my_collection)
+                if my_product.exists():
+                    product_ids.append(queryset.filter(collection__id=my_collection).first().id)
+            final_queryset = queryset.filter(id__in=product_ids)    
+        serializer = ProductSerializer(final_queryset, many=True)
+        return Response({'collections': collections_id_randomized, 'product_ids':product_ids, 'result':serializer.data})
 
 
 class FavoriteProductsView(viewsets.ModelViewSet):
@@ -99,7 +104,14 @@ class FavoriteProductsView(viewsets.ModelViewSet):
         queryset = Product.objects.filter(is_favorite=True)
         serializer_class = ProductSerializer
     else:
-        queryset = Product.objects.distinct('collection').all()
+        collections_id = Collection.objects.values_list('id', flat=True)
+        collections_id_randomized = random.sample(list(collections_id), 5)
+        product_ids = []
+        for my_collection in collections_id_randomized:
+            my_product = Product.objects.filter(collection__id=my_collection)
+            if my_product.exists():
+                product_ids.append(Product.objects.filter(collection__id=my_collection).first().id)
+        queryset = Product.objects.filter(id__in=product_ids)   
         serializer_class = ProductSerializer
 
 class CollectionViewSet(viewsets.ModelViewSet):
