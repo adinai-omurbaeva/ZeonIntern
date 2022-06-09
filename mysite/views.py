@@ -7,7 +7,7 @@ from rest_framework import status, generics
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from .serializers import CollectionSerializer,AdvantagesSerializer, NewsSerializer, PublicOfferSerializer, AboutUsSerializer, QAImageSerializer, QASerializer, ProductSerializer, FeedbackSerializer, FooterSerializer, FooterLinkSerializer
-from .models import Collection, News, PublicOffer, Advantages,AboutUs, QAImage, QA, Product, Feedback, Footer, FooterLink
+from .models import Collection, News, PublicOffer, Advantages, AboutUs, QAImage, QA, Product, Feedback, Footer, FooterLink
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 from itertools import chain 
 from rest_framework.response import Response
@@ -31,6 +31,7 @@ class ProductsFilter(filters.FilterSet):
         model = Product
         fields = ['name', ]
 
+
 @api_view(['POST'])
 def new_feedback(request):
     if request.method == 'POST':
@@ -41,12 +42,15 @@ def new_feedback(request):
             return JsonResponse(feedback_serializer.data, status=status.HTTP_201_CREATED) 
         return JsonResponse(feedback_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class QAAPIView(APIView):
     pagination_class = None
     querylist = [
         {'queryset': QAImage.objects.all(), 'serializer_class': QAImageSerializer},
         {'queryset': QA.objects.all(), 'serializer_class': QASerializer},
     ]
+
+
 class ProductDetailView(ObjectMultipleModelAPIView):
     pagination_class = None
     def get_querylist(self, *args, **kwargs):
@@ -69,6 +73,8 @@ class MainPageView(ObjectMultipleModelAPIView):
         {'queryset': Collection.objects.all()[:4],'serializer_class': CollectionSerializer},
         {'queryset': Advantages.objects.all()[:4],'serializer_class': AdvantagesSerializer},
         ]
+
+
 class ProductView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -114,30 +120,37 @@ class FavoriteProductsView(viewsets.ModelViewSet):
         queryset = Product.objects.filter(id__in=product_ids)   
         serializer_class = ProductSerializer
 
+
 class CollectionViewSet(viewsets.ModelViewSet):
     pagination_class = LargePaginaton
     queryset = Collection.objects.all().order_by('name')
     serializer_class = CollectionSerializer
 
+
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all().order_by('title')
     serializer_class = NewsSerializer
+
 
 class PublicOfferViewSet(viewsets.ModelViewSet):
     queryset = PublicOffer.objects.all().order_by('title')
     serializer_class = PublicOfferSerializer
 
+
 class AboutUsViewSet(viewsets.ModelViewSet):
     queryset = AboutUs.objects.all().order_by('title')
     serializer_class = AboutUsSerializer
+
 
 class FooterViewSet(viewsets.ModelViewSet):
     queryset = Footer.objects.all()
     serializer_class = FooterSerializer
 
+
 class FooterLinkViewSet(viewsets.ModelViewSet):
     queryset = FooterLink.objects.all()
     serializer_class = FooterLinkSerializer
+
 
 class CollectionDetailViewSet(viewsets.ModelViewSet):
     pagination_class = LargePaginaton
@@ -147,6 +160,7 @@ class CollectionDetailViewSet(viewsets.ModelViewSet):
         my_collection = Collection.objects.get(id = pk)
         queryset = Product.objects.filter(collection=my_collection)
         return queryset
+
 
 class NewProductsViewSet(viewsets.ModelViewSet):
     pagination_class = FivePagination

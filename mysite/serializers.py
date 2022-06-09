@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.response import Response
-from .models import Collection, News, PublicOffer, AboutUs, QA, QAImage, Product, Advantages, Feedback, ProductImage, Footer, FooterLink
+from .models import Collection, News, AboutUsImage, PublicOffer, AboutUs, QA, QAImage, Product, Advantages, Feedback, ProductImage, Footer, FooterLink
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -11,7 +11,7 @@ class CollectionSerializer(serializers.ModelSerializer):
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
-        fields = ('image', 'title', 'description')
+        fields = ('title', 'description')
 
 class PublicOfferSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,9 +19,15 @@ class PublicOfferSerializer(serializers.ModelSerializer):
         fields = ('title', 'description')
 
 class AboutUsSerializer(serializers.ModelSerializer):
+    about_image = serializers.SerializerMethodField("get_images")
     class Meta:
         model = AboutUs
-        fields = ('image1', 'image2','image3', 'title', 'description')
+        fields = ('about_image', 'title', 'description')
+    def get_images(self, about):   
+        my_image = AboutUsImage.objects.filter(aboutus=about)
+        final_image = ProductImageSerializer(instance = my_image, many = True)
+        return final_image.data
+        
     
 class QASerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,6 +49,18 @@ class ProductSerializer(serializers.ModelSerializer):
         final_image = ProductImageSerializer(instance = my_image, many = True)
         return final_image.data
 
+class FavoriteProductSerializer(serializers.ModelSerializer):
+    p_image = serializers.SerializerMethodField("get_p_images")
+    class Meta:
+        model = Product
+        fields = ('p_image','name', 'price', 'old_price', 'size', 'is_favorite','get_favorites_amount')
+    def get_p_images(self, newproduct):   
+        my_image = ProductImage.objects.filter(product=newproduct)
+        final_image = ProductImageSerializer(instance = my_image, many = True)
+        return final_image.data
+    
+
+
 class OnlyProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -52,7 +70,12 @@ class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
         fields = ('product', 'images', 'color')
-    
+
+class AboutUsImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutUsImage
+        fields = ('aboutus', 'image')
+
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
