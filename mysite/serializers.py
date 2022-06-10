@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.response import Response
-from .models import Collection, News, AboutUsImage, PublicOffer, AboutUs, QA, QAImage, Product, Advantages, Feedback, ProductImage, Footer, FooterLink
+from .models import Collection, News, AboutUsImage, PublicOffer, AboutUs, QA, QAImage, Product, Advantages, Feedback, ProductImage, Footer, FooterLink, OrderUserInfo, OrderProduct, Order, CartProducts
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -23,6 +23,8 @@ class AboutUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutUs
         fields = ('about_image', 'title', 'description')
+
+    """ Получаем все фото """   
     def get_images(self, about):   
         my_image = AboutUsImage.objects.filter(aboutus=about)
         final_image = ProductImageSerializer(instance = my_image, many = True)
@@ -44,6 +46,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('p_image','name', 'collection', 'articul', 'price', 'old_price', 'discount', 'description', 'size', 'fabric_structure', 'amount', 'material', 'hit', 'new', 'is_favorite')
+    """ Получаем все фото """ 
     def get_p_images(self, newproduct):   
         my_image = ProductImage.objects.filter(product=newproduct)
         final_image = ProductImageSerializer(instance = my_image, many = True)
@@ -54,6 +57,7 @@ class FavoriteProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('p_image','name', 'price', 'old_price', 'size', 'is_favorite','get_favorites_amount')
+    """ Получаем все фото """ 
     def get_p_images(self, newproduct):   
         my_image = ProductImage.objects.filter(product=newproduct)
         final_image = ProductImageSerializer(instance = my_image, many = True)
@@ -94,4 +98,24 @@ class FooterSerializer(serializers.ModelSerializer):
 class AdvantagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advantages
+        fields = '__all__'
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+class OrderUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderUserInfo
+        fields = '__all__'
+
+class OrderProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderProduct
+        fields = '__all__'
+
+class CartProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartProducts
         fields = '__all__'

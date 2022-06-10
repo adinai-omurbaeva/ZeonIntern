@@ -49,20 +49,26 @@ class AboutUsAdmin(admin.ModelAdmin):
             return True
         return super(AboutUs, self).has_add_permission(request, obj)
 
+class OrderInlineAdmin(admin.StackedInline):
+    extra = 1
+    max_num = 8
+    model = Order
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'amount_lines', 'amount_products', 'price', 'discount', 'final_price')
+    
 
 
 @admin.register(OrderProduct)
 class OrderProductAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product_image_fk', 'product_image', 'product_colour', 'product', 'name', 'size', 'price', 'old_price')
+    list_display = ('order', 'product_image_fk', 'product', 'price', 'old_price')
 
 
 @admin.register(OrderUserInfo)
 class OrderUserAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'phone', 'email', 'country', 'city', 'date', 'status')
+    inlines = [OrderInlineAdmin,]
 
 
 @admin.register(ProductImage)
@@ -91,8 +97,8 @@ class QAAdmin(admin.ModelAdmin):
 
 
 @admin.register(CartProducts)
-class OrderProductsAdmin(admin.ModelAdmin):
-    list_display = ('product', 'product_image_fk', 'product_image', 'product_colour', 'name', 'size', 'price', 'old_price', 'amount')
+class CartProductsAdmin(admin.ModelAdmin):
+    list_display = ('product', 'product_image_fk',  'price', 'old_price', 'amount')
 
 
 @admin.register(QAImage)

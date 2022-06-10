@@ -4,6 +4,6 @@ from django.conf.urls import url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('zeon/', include('mysite.urls')),
-    path('cart/', include('cart.urls')),
+    path('', include('mysite.urls')),
+    
 ]
