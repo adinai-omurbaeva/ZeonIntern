@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'drf_yasg',
     'cart',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -179,8 +180,10 @@ os.path.join(PROJECT_ROOT, 'assets'),
  
 )
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 8
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination','PAGE_SIZE': 8,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 CART_SESSION_ID = 'cart'
+
+FAVORITE_SESSION_ID = 'favorite'

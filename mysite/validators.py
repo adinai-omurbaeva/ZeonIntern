@@ -7,3 +7,6 @@ def validate_file_extension(value):
     if not ext.lower() in valid_extensions:
         raise ValidationError('Unsupported file extension.')
 
+def validate_amount(value):
+    if value < 1:
+     raise ValidationError('Минимум 1')   
