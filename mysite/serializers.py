@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from .models import Collection, News, AboutUsImage, PublicOffer, AboutUs, QA, QAImage, Product, Advantages, Feedback, ProductImage, Footer, FooterLink, OrderUserInfo, OrderProduct, Order, CartProducts
 from drf_multiple_model.views import ObjectMultipleModelAPIView
+from colorfield.fields import ColorField
 
 class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -116,6 +117,15 @@ class OrderProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CartProductsSerializer(serializers.ModelSerializer):
-    class Meta:
+    p_image = serializers.SerializerMethodField("get_p_images")
+    p_name = serializers.CharField(source='product.name')
+    p_size = serializers.CharField(source='product.size')
+    class Meta:    
         model = CartProducts
-        fields = '__all__'
+        fields = ('product_image_fk', 'p_image', 'product', 'p_name', 'p_size', 'price', 'old_price','amount')
+    def get_p_images(self, newproduct):   
+        image_id = CartProducts.objects.get(id = newproduct.id)
+        my_image = ProductImage.objects.filter(id = image_id.product_image_fk.id)
+        final_image = ProductImageSerializer(instance = my_image, many = True)
+        return final_image.data
+    

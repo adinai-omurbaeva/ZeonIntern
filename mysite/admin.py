@@ -54,9 +54,15 @@ class OrderInlineAdmin(admin.StackedInline):
     max_num = 8
     model = Order
 
+class OrderProductInline(admin.StackedInline):
+    extra = 1
+    max_num = 1
+    model = OrderProduct
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'amount_lines', 'amount_products', 'price', 'discount', 'final_price')
+    inlines = [OrderProductInline,]
     
 
 
@@ -67,6 +73,7 @@ class OrderProductAdmin(admin.ModelAdmin):
 
 @admin.register(OrderUserInfo)
 class OrderUserAdmin(admin.ModelAdmin):
+    search_fields = ('first_name', 'last_name', 'email', 'phone')
     list_display = ('first_name', 'last_name', 'phone', 'email', 'country', 'city', 'date', 'status')
     inlines = [OrderInlineAdmin,]
 

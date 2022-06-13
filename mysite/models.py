@@ -46,10 +46,6 @@ class Product(models.Model):
             self.discount = int(self.old_price - self.price)
         super(Product, self).save(*args, **kwargs)
 
-    def get_favorites_amount(self):
-        amount = Product.objects.filter(is_favorite=True).count()
-        return amount
-        
     def __str__(self):
         return '{}'.format(self.name)
 
@@ -306,8 +302,8 @@ class Order(models.Model):
             self.price += item.old_price * item.amount        
             self.discount += item.old_price* item.amount - item.price * item.amount 
             self.final_price  += item.price * item.amount
-            self.amount_products += item.amount       
-        self.amount_lines = cart_query.count()
+            self.amount_products += item.amount * item.product.amount      
+            self.amount_lines += item.amount
         super(Order, self).save(*args, **kwargs)
         
     class Meta:
