@@ -136,8 +136,8 @@ class PublicOffer(models.Model):
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     description = RichTextField(verbose_name='Текст')
     class Meta:
-        verbose_name_plural = 'Публичная офферта'
-        verbose_name = "Публичная офферта"
+        verbose_name_plural = 'Публичная оферта'
+        verbose_name = "Публичная оферта"
 
 
 class Feedback(models.Model):
@@ -208,8 +208,8 @@ class FooterLink(models.Model):
     def __str__(self):
         return '{}, {}'.format(self.link_type, self.link)
     class Meta:
-        verbose_name_plural = 'Ссылки'
-        verbose_name = "Ссылка"
+        verbose_name_plural = 'Футер ссылки'
+        verbose_name = "Футер ссылки"
     
 
 class Footer(models.Model):
@@ -219,13 +219,7 @@ class Footer(models.Model):
     logo = models.ImageField(verbose_name='Логотип')
     info = models.CharField(verbose_name='Информация', max_length=255)
     number = models.PositiveIntegerField(verbose_name='Номер в хедере')
-    footer_link = models.ManyToManyField(FooterLink)
 
-    def get_link(self):
-        my_dict = {}
-        for p in self.footer_link.all():
-            my_dict.update({p.link_type:p.link})
-        return my_dict
     class Meta:
         verbose_name_plural = 'Футер'
         verbose_name = "Футер"
@@ -330,5 +324,5 @@ class OrderProduct(models.Model):
         
     
     class Meta:
-        verbose_name_plural = 'Товары в заказе'
-        verbose_name = "Товар в заказе"
+        verbose_name_plural = 'Заказ товары'
+        verbose_name = "Заказ товары"

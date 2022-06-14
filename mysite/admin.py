@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.forms import inlineformset_factory
 from django import forms
-
+from django.shortcuts import redirect
 # Register your models here.
 from .models import Product, ProductImage, Order, OrderUserInfo, OrderProduct, AboutUsImage, CartProducts, News, Collection, QA, QAImage, AboutUs, PublicOffer, MainPage, Feedback, Footer, FooterLink, Advantages
 # from . import models
@@ -48,6 +48,13 @@ class AboutUsAdmin(admin.ModelAdmin):
         else:
             return True
         return super(AboutUs, self).has_add_permission(request, obj)
+
+    def changelist_view(self, request, extra_context=None):
+        if AboutUs.objects.all().count() == 0:
+            return redirect(request.path + "add/")
+        else:
+            about_us = AboutUs.objects.all().first()
+            return redirect(request.path + f"{about_us.id}")
 
 class OrderInlineAdmin(admin.StackedInline):
     extra = 1
@@ -117,11 +124,29 @@ class QAImageAdmin(admin.ModelAdmin):
         else:
             return True
         return super(QAImage, self).has_add_permission(request, obj)
+    def changelist_view(self, request, extra_context=None):
+        if QAImage.objects.all().count() == 0:
+            return redirect(request.path + "add/")
+        else:
+            qa_image = QAImage.objects.all().first()
+            return redirect(request.path + f"{qa_image.id}")
 
 
 @admin.register(PublicOffer)
 class PublicOfferAdmin(admin.ModelAdmin):
     list_display = ('title', 'description')
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 1:
+            return False
+        else:
+            return True
+        return super(PublicOffer, self).has_add_permission(request, obj)
+    def changelist_view(self, request, extra_context=None):
+        if PublicOffer.objects.all().count() == 0:
+            return redirect(request.path + "add/")
+        else:
+            public_offer = PublicOffer.objects.all().first()
+            return redirect(request.path + f"{public_offer.id}")
 
 
 @admin.register(MainPage)
@@ -133,6 +158,12 @@ class MainPageAdmin(admin.ModelAdmin):
         else:
             return True
         return super(MainPage, self).has_add_permission(request, obj)
+    def changelist_view(self, request, extra_context=None):
+        if MainPage.objects.all().count() == 0:
+            return redirect(request.path + "add/")
+        else:
+            main_page = MainPage.objects.all().first()
+            return redirect(request.path + f"{main_page.id}")
 
 
 @admin.register(Feedback)
@@ -150,14 +181,19 @@ class FooterLinkAdmin(admin.ModelAdmin):
 
 @admin.register(Footer)
 class FooterAdmin(admin.ModelAdmin):
-    list_display = ("info",'logo', 'number','get_link')
+    list_display = ("info",'logo', 'number')
     def has_add_permission(self, request):
         if self.model.objects.count() >= 1:
             return False
         else:
             return True
         return super(Footer, self).has_add_permission(request, obj)
-
+    def changelist_view(self, request, extra_context=None):
+        if Footer.objects.all().count() == 0:
+            return redirect(request.path + "add/")
+        else:
+            footer = Footer.objects.all().first()
+            return redirect(request.path + f"{footer.id}")
 
 @admin.register(Advantages)
 class AdvantagesAdmin(admin.ModelAdmin):

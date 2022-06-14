@@ -59,7 +59,7 @@ class ProductDetailView(ObjectMultipleModelAPIView):
         return querylist
     
     
-class MainPageView(APIView):
+class MainPageView(ObjectMultipleModelAPIView):
     """ Главная страница """
     pagination_class = None
     querylist = [
@@ -156,17 +156,13 @@ class AboutUsViewSet(generics.ListAPIView):
     serializer_class = AboutUsSerializer
 
 
-class FooterViewSet(generics.ListAPIView):
+class FooterViewSet(ObjectMultipleModelAPIView):
     """ Футер """
-    queryset = Footer.objects.all()
+    pagination_class = None
     serializer_class = FooterSerializer
-
-
-class FooterLinkViewSet(generics.ListAPIView):
-    """ Получаем ссылки футера """
-    queryset = FooterLink.objects.all()
-    serializer_class = FooterLinkSerializer
-
+    querylist = [
+        {'queryset': Footer.objects.all(),'serializer_class': FooterSerializer},
+        {'queryset': FooterLink.objects.all(),'serializer_class': FooterLinkSerializer}]
 
 class CollectionViewSet(generics.ListAPIView):
     """ Коллекции """

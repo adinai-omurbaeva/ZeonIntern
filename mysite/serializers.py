@@ -94,7 +94,7 @@ class FooterLinkSerializer(serializers.ModelSerializer):
 class FooterSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Footer
-        fields = ('logo', 'info','number', 'get_link')
+        fields = ('logo', 'info','number')
 
 class AdvantagesSerializer(serializers.ModelSerializer):
     class Meta:

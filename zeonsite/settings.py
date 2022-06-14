@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'drf_yasg',
     'django_filters'
+    # 'accounts',
 ]
 
 MIDDLEWARE = [
@@ -137,6 +138,8 @@ MEDIA_URL = '/media/' # URL для медии в шаблонах
 
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 
+CKEDITOR_IMAGE_BACKEND = 'pillow'
+
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static') # пустая папка, сюда будет собирать статику collectstatic
 
 STATIC_URL = '/static/' # URL для шаблонов
@@ -182,3 +185,5 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination','PAGE_SIZE': 8,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
+
+# AUTH_USER_MODEL = 'accounts.CustomUser'
