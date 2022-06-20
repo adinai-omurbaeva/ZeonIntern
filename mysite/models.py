@@ -9,6 +9,9 @@ from django.contrib import messages
 
 
 class Collection(models.Model):
+    """ 
+        Коллекции одежды
+    """
     name = models.CharField(max_length=255, verbose_name="Название")
     image = models.ImageField(verbose_name= 'Изображение')
     class Meta:
@@ -17,6 +20,9 @@ class Collection(models.Model):
 
 
 class Product(models.Model):
+    """ 
+        Товар
+    """
     name = models.CharField(max_length=255, verbose_name='Название')
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE, verbose_name='Коллекция')
     articul = models.CharField(max_length=255,verbose_name='Артикул')
@@ -32,15 +38,14 @@ class Product(models.Model):
     new = models.BooleanField(default=False,verbose_name='Новинки')
     is_favorite = models.BooleanField(default=False, verbose_name='Избранное')
 
+    """ 
+        Подсчет скидки при наличии старой цены
+    """
     def save(self, *args, **kwargs):
         if self.old_price != 0 and self.old_price > self.price:
             self.discount = int(self.old_price - self.price)
         super(Product, self).save(*args, **kwargs)
 
-    def get_favorites_amount(self):
-        amount = Product.objects.filter(is_favorite=True).count()
-        return amount
-        
     def __str__(self):
         return '{}'.format(self.name)
 
@@ -50,17 +55,23 @@ class Product(models.Model):
     
     
 class ProductImage(models.Model):
+    """ 
+        Фото и цвет товара
+    """
     product = models.ForeignKey(Product, default=None, on_delete=models.CASCADE)
     images = models.ImageField(upload_to = 'images/', verbose_name='Изображение')
     color = ColorField(verbose_name='Цвет')
     def __str__(self):
-        return '{}, {}'.format(self.id, self.product)
+        return '{} : {}'.format(self.product.name, self.color)
     class Meta:
         verbose_name_plural = 'Изображение и цвет товара'
         verbose_name = "Изображение и цвет товара"
 
 
 class News(models.Model):
+    """ 
+        Новости
+    """
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     image = models.ImageField(verbose_name='Изображение')
     description = RichTextField(null=True, blank=True, verbose_name='Описание')
@@ -73,7 +84,9 @@ class News(models.Model):
 
 
 class QA(models.Model):
-    """ test"""
+    """ 
+        Модель помощь (вопросы и ответы)
+    """
     question = models.TextField(verbose_name='Вопрос')
     answer = models.TextField(verbose_name='Ответ')
     class Meta:
@@ -82,6 +95,9 @@ class QA(models.Model):
 
 
 class QAImage(models.Model):
+    """ 
+        Картинка для страницы помощи
+    """
     image = models.ImageField(verbose_name='Изображение')
     class Meta:
         verbose_name_plural = 'Изображение страницы помощи'
@@ -89,6 +105,9 @@ class QAImage(models.Model):
 
 
 class AboutUs(models.Model):
+    """ 
+        Модель помощь (вопросы и ответы)
+    """
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     description = RichTextField(verbose_name='Описание')
     
@@ -100,6 +119,9 @@ class AboutUs(models.Model):
 
 
 class AboutUsImage(models.Model):
+    """ 
+        Изображение для страницы о нас
+    """
     aboutus = models.ForeignKey(AboutUs, on_delete=models.CASCADE, verbose_name='Изображения')
     image = models.ImageField(verbose_name='Изображение')
     class Meta:
@@ -108,14 +130,20 @@ class AboutUsImage(models.Model):
 
 
 class PublicOffer(models.Model):
+    """ 
+        Публичная оферта
+    """
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     description = RichTextField(verbose_name='Текст')
     class Meta:
-        verbose_name_plural = 'Публичная офферта'
-        verbose_name = "Публичная офферта"
+        verbose_name_plural = 'Публичная оферта'
+        verbose_name = "Публичная оферта"
 
 
 class Feedback(models.Model):
+    """ 
+        Обратная связь
+    """
     STATUS_CHOISES = (
         ("yes", 'Да'),
         ("no", 'Нет'),
@@ -131,6 +159,9 @@ class Feedback(models.Model):
     
 
 class MainPage(models.Model):
+    """ 
+        Главная страница
+    """
     link = models.URLField(verbose_name='Ссылка', null=True, blank=True)
     image = models.ImageField(verbose_name='Изображение')
     
@@ -140,6 +171,9 @@ class MainPage(models.Model):
 
 
 class Advantages(models.Model):
+    """ 
+        Наши преимущества
+    """
     icon = models.FileField(verbose_name='Изображение',validators=[validate_file_extension])
     title = models.CharField(max_length = 255, verbose_name='Заголовок')
     description = models.CharField(max_length=255,verbose_name='Описание')
@@ -149,6 +183,9 @@ class Advantages(models.Model):
 
 
 class FooterLink(models.Model):
+    """ 
+        Ссылки для футера
+    """
     LINK_CHOISES = (
         ("whatsapp", 'Whats app'),
         ("phone", 'Номер'),
@@ -158,7 +195,9 @@ class FooterLink(models.Model):
     )
     link_type = models.CharField(max_length=50, choices=LINK_CHOISES, verbose_name='Тип')
     link = models.CharField(max_length=255, verbose_name='Ссылка')
-    
+    """ 
+        Если тип ссылки whatsapp, то преобразует номер в ссылку
+    """
     def save(self, *args, **kwargs):
         if self.link_type == 'whatsapp':
             self.link = 'https://wa.me/'+self.link
@@ -169,26 +208,26 @@ class FooterLink(models.Model):
     def __str__(self):
         return '{}, {}'.format(self.link_type, self.link)
     class Meta:
-        verbose_name_plural = 'Ссылки'
-        verbose_name = "Ссылка"
+        verbose_name_plural = 'Футер ссылки'
+        verbose_name = "Футер ссылки"
     
 
 class Footer(models.Model):
+    """ 
+        Футер
+    """
     logo = models.ImageField(verbose_name='Логотип')
     info = models.CharField(verbose_name='Информация', max_length=255)
     number = models.PositiveIntegerField(verbose_name='Номер в хедере')
-    footer_link = models.ManyToManyField(FooterLink)
 
-    def get_link(self):
-        my_dict = {}
-        for p in self.footer_link.all():
-            my_dict.update({p.link_type:p.link})
-        return my_dict
     class Meta:
         verbose_name_plural = 'Футер'
         verbose_name = "Футер"
         
 class OrderUserInfo(models.Model):
+    """ 
+        Информация пользователя при оформлении заказа
+    """
     STATUS_CHOISES = (
         ("new", 'Новый'),
         ("confirmed", 'Подтвержден'),
@@ -202,20 +241,22 @@ class OrderUserInfo(models.Model):
     city = models.CharField(max_length=255, verbose_name='Город')
     date = models.DateField(verbose_name='Дата',auto_now_add=True, blank=True)
     status = models.CharField(choices=STATUS_CHOISES, max_length=50, verbose_name='Статус заказа', blank=True, default='new')
+    
+    def __str__(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+    
     class Meta:
         verbose_name_plural = 'Информация пользователя'
         verbose_name = "Информация пользователя"
-    def save(self, *args, **kwargs):
-        cart_queryset = CartProducts.objects.all()
-
+    
+        
 
 class CartProducts(models.Model):
-    product_image_fk = models.ForeignKey(ProductImage, verbose_name="Id фото и продукт к которому привязан", on_delete=models.CASCADE)
-    product_colour = ColorField(verbose_name='Цвет', null=True, blank=True)
-    product_image = models.ImageField(verbose_name='Изображение', null = True, blank=True)
+    """ 
+        Корзина
+    """
+    product_image_fk = models.ForeignKey(ProductImage, verbose_name="Фото и цвет", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, verbose_name='Название', null=True, blank=True)
-    size = models.CharField(max_length=255, verbose_name='Размер', null=True, blank=True)
     price = models.PositiveIntegerField(verbose_name='Цена', null=True, blank=True)
     old_price = models.PositiveIntegerField(default = 0,verbose_name='Старая цена', null=True, blank=True)
     amount = models.PositiveIntegerField(default=1, verbose_name='Количество', validators=[validate_amount])
@@ -226,20 +267,20 @@ class CartProducts(models.Model):
         return super().clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        self.product_colour = ProductImage.objects.get(id=self.product_image_fk.id).color
-        self.product_image = ProductImage.objects.get(id = self.product_image_fk.id).images
         my_product = Product.objects.get(id=self.product.id)
-        self.name = my_product.name
-        self.size = my_product.size
         self.price = my_product.price
         self.old_price = my_product.old_price
         super(CartProducts, self).save(*args, **kwargs)
+        
     class Meta:
-        verbose_name_plural = 'Товары в корзине'
-        verbose_name = "Товар в корзине"
+        verbose_name_plural = 'Корзина'
+        verbose_name = "Корзина"
 
 
 class Order(models.Model):
+    """ 
+        Заказы
+    """
     user = models.ForeignKey(OrderUserInfo, verbose_name='Информация пользователя', on_delete=models.CASCADE)
     amount_lines = models.PositiveIntegerField(verbose_name='Количество линеек', default=0, null = True, blank = True)
     amount_products = models.PositiveIntegerField(verbose_name='Количество товаров', default=0, null = True, blank = True)
@@ -255,27 +296,33 @@ class Order(models.Model):
             self.price += item.old_price * item.amount        
             self.discount += item.old_price* item.amount - item.price * item.amount 
             self.final_price  += item.price * item.amount
-            self.amount_products += item.amount       
-        self.amount_lines = cart_query.count()
+            self.amount_products += item.amount * item.product.amount      
+            self.amount_lines += item.amount
         super(Order, self).save(*args, **kwargs)
         
-
     class Meta:
         verbose_name_plural = 'Заказы'
         verbose_name = "Заказ"
 
 
 class OrderProduct(models.Model):
+    """ 
+        Заказанные товары
+    """
     order = models.ForeignKey(Order, verbose_name='Заказ', on_delete=models.CASCADE)
-    product_image_fk = models.ForeignKey(ProductImage, verbose_name="Id фото и продукт к которому привязан", on_delete=models.CASCADE)
-    product_colour = ColorField(verbose_name='Цвет', null=True, blank=True)
-    product_image = models.ImageField(verbose_name='Изображение', null=True, blank=True)
+    product_image_fk = models.ForeignKey(ProductImage, verbose_name="Фото и цвет", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, verbose_name='Название', null=True, blank=True)
-    size = models.CharField(max_length=255, verbose_name='Размер', null=True, blank=True)
     price = models.PositiveIntegerField(verbose_name='Цена', null=True, blank=True)
     old_price = models.PositiveIntegerField(default = 0,verbose_name='Старая цена', null=True, blank=True)
     amount = models.PositiveIntegerField(default=1, verbose_name='Количество', validators=[validate_amount])
+    
+    def save(self, *args, **kwargs):
+        my_product = Product.objects.get(id=self.product.id)
+        self.price = my_product.price
+        self.old_price = my_product.old_price
+        super(OrderProduct, self).save(*args, **kwargs)
+        
+    
     class Meta:
-        verbose_name_plural = 'Товары в заказе'
-        verbose_name = "Товар в заказе"
+        verbose_name_plural = 'Заказ товары'
+        verbose_name = "Заказ товары"

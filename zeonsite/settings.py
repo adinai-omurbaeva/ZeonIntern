@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     'drf_multiple_model',
     'rest_framework_swagger',
     'drf_yasg',
-    'cart',
     'django_filters'
+    # 'accounts',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +138,8 @@ MEDIA_URL = '/media/' # URL для медии в шаблонах
 
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 
+CKEDITOR_IMAGE_BACKEND = 'pillow'
+
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static') # пустая папка, сюда будет собирать статику collectstatic
 
 STATIC_URL = '/static/' # URL для шаблонов
@@ -184,6 +186,4 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
-CART_SESSION_ID = 'cart'
-
-FAVORITE_SESSION_ID = 'favorite'
+# AUTH_USER_MODEL = 'accounts.CustomUser'
