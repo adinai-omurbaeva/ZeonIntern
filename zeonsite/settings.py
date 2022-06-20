@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
-
+from google.oauth2 import service_account
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     'drf_multiple_model',
     'rest_framework_swagger',
     'drf_yasg',
-    'django_filters'
-    # 'accounts',
+    'django_filters',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -65,7 +65,7 @@ ROOT_URLCONF = 'zeonsite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -150,8 +150,9 @@ STATICFILES_DIRS = (
 os.path.join(PROJECT_ROOT, 'assets'),
 
 )
-
-
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=os.path.join(PROJECT_ROOT, 'zeoninternship-firebase-adminsdk-wj0yl-5d5ca12dc4.json')
+# credentials = service_account.Credentials.from_service_account_file("/home/adinai/Zeon/zeoninternship-firebase-adminsdk-wj0yl-5d5ca12dc4.jso")
+# client = language.LanguageServiceClient(credentials=credentials)
 # "Поисковики" статики. Первый ищет статику в STATICFILES_DIRS,
 
 # второй в папках приложений.
@@ -186,4 +187,3 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
-# AUTH_USER_MODEL = 'accounts.CustomUser'

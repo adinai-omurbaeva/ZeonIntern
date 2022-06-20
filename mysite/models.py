@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from .validators import validate_file_extension, validate_amount
 from rest_framework import permissions
 from django.contrib import messages
-
+from accounts.models import MyUser
 
 class Collection(models.Model):
     """ 
@@ -17,7 +17,9 @@ class Collection(models.Model):
     class Meta:
         verbose_name_plural = 'Коллекции'
         verbose_name = "Коллекция"
-
+    def __str__(self):
+        return '{}'.format(self.name)
+    
 
 class Product(models.Model):
     """ 
@@ -92,6 +94,8 @@ class QA(models.Model):
     class Meta:
         verbose_name_plural = 'Помощь'
         verbose_name = "Помощь"
+    def __str__(self):
+        return '{}'.format(self.question)
 
 
 class QAImage(models.Model):
@@ -102,7 +106,8 @@ class QAImage(models.Model):
     class Meta:
         verbose_name_plural = 'Изображение страницы помощи'
         verbose_name = "Изображение страницы помощи"
-
+    def __str__(self):
+        return '{}'.format(self.image)
 
 class AboutUs(models.Model):
     """ 
@@ -127,7 +132,8 @@ class AboutUsImage(models.Model):
     class Meta:
         verbose_name_plural = 'Изображения'
         verbose_name = "Изображение"
-
+    def __str__(self):
+        return '{}'.format(self.image)
 
 class PublicOffer(models.Model):
     """ 
@@ -138,7 +144,8 @@ class PublicOffer(models.Model):
     class Meta:
         verbose_name_plural = 'Публичная оферта'
         verbose_name = "Публичная оферта"
-
+    def __str__(self):
+        return '{}'.format(self.title)
 
 class Feedback(models.Model):
     """ 
@@ -156,7 +163,8 @@ class Feedback(models.Model):
     class Meta:
         verbose_name_plural = 'Обратная связь'
         verbose_name = "Обратная связь"
-    
+    def __str__(self):
+        return '{}'.format(self.name)
 
 class MainPage(models.Model):
     """ 
@@ -168,7 +176,8 @@ class MainPage(models.Model):
     class Meta:
         verbose_name_plural = 'Главная страница'
         verbose_name = "Главная страница"
-
+    def __str__(self):
+        return '{}'.format(self.image)
 
 class Advantages(models.Model):
     """ 
@@ -180,7 +189,8 @@ class Advantages(models.Model):
     class Meta:
         verbose_name_plural = 'Наши преимущества'
         verbose_name = "Наши преимущества"
-
+    def __str__(self):
+        return '{}'.format(self.title)
 
 class FooterLink(models.Model):
     """ 
@@ -223,7 +233,10 @@ class Footer(models.Model):
     class Meta:
         verbose_name_plural = 'Футер'
         verbose_name = "Футер"
-        
+    def __str__(self):
+        return '{}'.format(self.info)
+
+
 class OrderUserInfo(models.Model):
     """ 
         Информация пользователя при оформлении заказа
@@ -275,13 +288,15 @@ class CartProducts(models.Model):
     class Meta:
         verbose_name_plural = 'Корзина'
         verbose_name = "Корзина"
+    def __str__(self):
+        return '{}'.format(self.product.name)
 
 
 class Order(models.Model):
     """ 
         Заказы
     """
-    user = models.ForeignKey(OrderUserInfo, verbose_name='Информация пользователя', on_delete=models.CASCADE)
+    user = models.ForeignKey(MyUser, verbose_name='Пользователь', on_delete=models.CASCADE)
     amount_lines = models.PositiveIntegerField(verbose_name='Количество линеек', default=0, null = True, blank = True)
     amount_products = models.PositiveIntegerField(verbose_name='Количество товаров', default=0, null = True, blank = True)
     price = models.PositiveIntegerField(verbose_name='Стоимость', default=0, null = True, blank = True)
@@ -303,7 +318,8 @@ class Order(models.Model):
     class Meta:
         verbose_name_plural = 'Заказы'
         verbose_name = "Заказ"
-
+    def __str__(self):
+        return '{}'.format(self.user.first_name)
 
 class OrderProduct(models.Model):
     """ 
@@ -326,3 +342,13 @@ class OrderProduct(models.Model):
     class Meta:
         verbose_name_plural = 'Заказ товары'
         verbose_name = "Заказ товары"
+
+    def __str__(self):
+        return '{}'.format(self.product.name)
+
+class FavoriteHelper(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, verbose_name='Пользователь')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')
+    class Meta:
+        verbose_name_plural = 'Избранное'
+        verbose_name = "Избранное"

@@ -53,7 +53,23 @@ class ProductSerializer(serializers.ModelSerializer):
         final_image = ProductImageSerializer(instance = my_image, many = True)
         return final_image.data
 
+
+class SearchProductSerialiser(serializers.ModelSerializer):
+    """ Сериализатор для вывода в поиске """
+    p_image = serializers.SerializerMethodField("get_p_images")
+    class Meta:
+        model = Product
+        fields = ('p_image','name',  'price', 'old_price', 'discount',  'size', 'is_favorite')
+    """ Получаем все фото """ 
+    def get_p_images(self, newproduct):   
+        my_image = ProductImage.objects.filter(product=newproduct)
+        final_image = ProductImageSerializer(instance = my_image, many = True)
+        return final_image.data
+
+
+
 class FavoriteProductSerializer(serializers.ModelSerializer):
+    """ Избранные продукты """
     p_image = serializers.SerializerMethodField("get_p_images")
     class Meta:
         model = Product
@@ -91,30 +107,36 @@ class FooterLinkSerializer(serializers.ModelSerializer):
         model = FooterLink
         fields = ('link_type', 'link')
 
+
 class FooterSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Footer
         fields = ('logo', 'info','number')
+
 
 class AdvantagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advantages
         fields = '__all__'
 
+
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
+
 
 class OrderUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderUserInfo
         fields = '__all__'
 
+
 class OrderProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderProduct
         fields = '__all__'
+
 
 class CartProductsSerializer(serializers.ModelSerializer):
     p_image = serializers.SerializerMethodField("get_p_images")

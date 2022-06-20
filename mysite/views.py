@@ -6,8 +6,15 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status, generics
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from .serializers import CollectionSerializer,AdvantagesSerializer, NewsSerializer, PublicOfferSerializer, AboutUsSerializer, QAImageSerializer, QASerializer, ProductSerializer, FeedbackSerializer, FooterSerializer, FooterLinkSerializer, OrderProductSerializer, OrderSerializer, OrderUserSerializer, CartProductsSerializer
-from .models import Collection, News, PublicOffer, Advantages, AboutUs, QAImage, QA, Product, Feedback, Footer, FooterLink, OrderProduct, OrderUserInfo, Order, CartProducts
+from .serializers import (CollectionSerializer,AdvantagesSerializer, NewsSerializer, 
+                    PublicOfferSerializer, AboutUsSerializer, QAImageSerializer, QASerializer, 
+                    ProductSerializer, FeedbackSerializer, FooterSerializer, FooterLinkSerializer,
+                    OrderProductSerializer, OrderSerializer, OrderUserSerializer, 
+                    CartProductsSerializer, SearchProductSerialiser)
+from .models import (Collection, News, PublicOffer, Advantages, AboutUs, QAImage, QA, Product, 
+                    Feedback, Footer, FooterLink, OrderProduct, OrderUserInfo, Order, CartProducts, 
+                    FavoriteHelper)
+from accounts.models import MyUser
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 from itertools import chain 
 from rest_framework.response import Response
@@ -87,7 +94,7 @@ class ProductsFilter(filters.FilterSet):
 class SearchProductView(generics.ListAPIView):
     """ Поиск товара по названию """
     queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+    serializer_class = SearchProductSerialiser
     filter_backends = [DjangoFilterBackend]
     filter_fields = ['name',]
     filter_class = ProductsFilter
@@ -105,9 +112,9 @@ class SearchProductView(generics.ListAPIView):
                 if my_product.exists():
                     product_ids.append(queryset.filter(collection__id=my_collection).first().id)
             final_queryset = queryset.filter(id__in=product_ids)   
-            serializer = ProductSerializer(final_queryset, many=True)
+            serializer = SearchProductSerialiser(final_queryset, many=True)
         else:
-            serializer = ProductSerializer(filtered_queryset, many=True)
+            serializer = SearchProductSerialiser(filtered_queryset, many=True)
         return Response({'result':serializer.data})
 
 
@@ -135,7 +142,31 @@ class FavoriteProductsView(generics.ListAPIView):
         return Response({'result':serializer.data, 'favorites number': favorite_amount})
 
 
-
+class ExtraFavoriteProductsView(generics.ListAPIView):
+    """ Избранное. Рандомизация как в поиске """
+    serializer_class = ProductSerializer
+    pagination_class = None
+    def list(self, request, *args, **kwargs):
+        favorite_amount = 0
+        pk = self.kwargs.get('pk')
+        if FavoriteHelper.objects.filter(user = pk).exists():
+            fav_queryset = FavoriteHelper.objects.filter(user=pk)
+            product_ids = fav_queryset.values_list('product')
+            queryset = Product.objects.filter(id__in=product_ids)
+            serializer = ProductSerializer(queryset,many=True)
+            favorite_amount = Product.objects.filter(is_favorite=True).count()
+        else:
+            favorite_amount = 0
+            collections_id = Collection.objects.values_list('id', flat=True)
+            collections_id_randomized = random.sample(list(collections_id), 5)
+            product_ids = []
+            for my_collection in collections_id_randomized:
+                my_product = Product.objects.filter(collection__id=my_collection)
+                if my_product.exists():
+                    product_ids.append(Product.objects.filter(collection__id=my_collection).first().id)
+            queryset = Product.objects.filter(id__in=product_ids)   
+            serializer = ProductSerializer(queryset,many=True)
+        return Response({'result':serializer.data, 'favorites number': favorite_amount})
 
 
 class NewsViewSet(generics.ListAPIView):
@@ -182,6 +213,7 @@ class CollectionDetailViewSet(generics.ListAPIView):
 
 
 class NewProductsViewSet(generics.ListAPIView):
+    """ Новинки """
     pagination_class = FivePagination
     queryset = Product.objects.filter(new = True)
     serializer_class = ProductSerializer
@@ -205,7 +237,7 @@ class OrderCreateViewSet(viewsets.ModelViewSet):
                                         amount=p_cart.amount)
         CartProducts.objects.all().delete()
 
-class CartViewSet(viewsets.ModelViewSet):
+class CartViewSet(generics.ListAPIView):
     """ Корзина """
     queryset = CartProducts.objects.all()
     serializer_class = CartProductsSerializer
@@ -225,4 +257,12 @@ class CartViewSet(viewsets.ModelViewSet):
         serializer = CartProductsSerializer(queryset, many=True)
         return Response({'result':serializer.data, 'lines':amount_lines, 'products': amount_products,
                         'total_price':my_price, 'discount': my_discount, 'final_price':my_final})
+
+class CartDeleteView(generics.DestroyAPIView):
+    def delete(self, request, pk, format=None):
+        my_product = Product.objects.get(id = pk)
+        cart_object = CartProducts.objects.get(product=my_product)
+        cart_object.delete()
+        return Response({'deleted':my_product.name})
+
         

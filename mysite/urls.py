@@ -26,7 +26,7 @@ router = routers.DefaultRouter()
 router.register(r'product', views.ProductView)
 router.register(r'feedback', views.FeedbackView)
 router.register(r'order', views.OrderCreateViewSet)
-router.register(r'cart', views.CartViewSet)
+# router.register(r'cart', views.CartViewSet)
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -56,5 +56,8 @@ urlpatterns = [
     path('api/collectiondetail/<int:pk>/', views.CollectionDetailViewSet.as_view()),
     path('api/newproductslist', views.NewProductsViewSet.as_view()),
     path('api/search/', views.SearchProductView.as_view()),
-    path('api/collection/', views.CollectionViewSet.as_view())
+    path('api/collection/', views.CollectionViewSet.as_view()),
+    path('api/cart/', views.CartViewSet.as_view()),
+    path('api/cartdelete/<int:pk>', views.CartDeleteView.as_view()),
+    path('api/favoriteextra/<int:pk>', views.ExtraFavoriteProductsView.as_view())
 ]
