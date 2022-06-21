@@ -237,12 +237,38 @@ class OrderCreateViewSet(viewsets.ModelViewSet):
                                         amount=p_cart.amount)
         CartProducts.objects.all().delete()
 
+class ExtraOrderCreateView(generics.CreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    def perform_create(self, serializer):
+        new_order = serializer.save()
+        for p_cart in CartProducts.objects.filter(user = new_order.user):
+            OrderProduct.objects.create(order = new_order,
+                                        user = p_cart.user,
+                                        product_image_fk=p_cart.product_image_fk,
+                                        product=p_cart.product,
+                                        price=p_cart.price, 
+                                        old_price=p_cart.old_price,
+                                        amount=p_cart.amount)
+        CartProducts.objects.all().delete()
+  
+class ExtraOrderHistoryListView(generics.ListAPIView):
+    def list(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        queryset = Order.objects.filter(user=pk, status='finished')
+        serializer_class = OrderSerializer
+        serializer = OrderSerializer(queryset, many=True)
+        return Response({'result':serializer.data})
+
+
 class CartViewSet(generics.ListAPIView):
     """ Корзина """
-    queryset = CartProducts.objects.all()
-    serializer_class = CartProductsSerializer
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        """Доп задание с пользователем"""
+        pk = self.kwargs.get('pk')
+        queryset = CartProducts.objects.filter(user=pk)
+        serializer_class = CartProductsSerializer
+
         amount_lines = 0
         my_price = 0
         my_discount = 0
@@ -259,9 +285,9 @@ class CartViewSet(generics.ListAPIView):
                         'total_price':my_price, 'discount': my_discount, 'final_price':my_final})
 
 class CartDeleteView(generics.DestroyAPIView):
-    def delete(self, request, pk, format=None):
+    def delete(self, request, pk, userpk, format=None):
         my_product = Product.objects.get(id = pk)
-        cart_object = CartProducts.objects.get(product=my_product)
+        cart_object = CartProducts.objects.get(product=my_product, user=userpk)
         cart_object.delete()
         return Response({'deleted':my_product.name})
 

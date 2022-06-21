@@ -57,7 +57,9 @@ urlpatterns = [
     path('api/newproductslist', views.NewProductsViewSet.as_view()),
     path('api/search/', views.SearchProductView.as_view()),
     path('api/collection/', views.CollectionViewSet.as_view()),
-    path('api/cart/', views.CartViewSet.as_view()),
-    path('api/cartdelete/<int:pk>', views.CartDeleteView.as_view()),
-    path('api/favoriteextra/<int:pk>', views.ExtraFavoriteProductsView.as_view())
+    path('api/cart/<int:pk>/', views.CartViewSet.as_view()),
+    path('api/cartdelete/<int:pk>/<int:userpk>/', views.CartDeleteView.as_view()),
+    path('api/favoriteextra/<int:pk>/', views.ExtraFavoriteProductsView.as_view()),
+    path('api/orderextra/', views.ExtraOrderCreateView.as_view()),
+    path('api/orderhistory/',views.ExtraOrderHistoryListView.as_view()),
 ]

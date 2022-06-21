@@ -144,7 +144,7 @@ class CartProductsSerializer(serializers.ModelSerializer):
     p_size = serializers.CharField(source='product.size')
     class Meta:    
         model = CartProducts
-        fields = ('product_image_fk', 'p_image', 'product', 'p_name', 'p_size', 'price', 'old_price','amount')
+        fields = ('user','product_image_fk', 'p_image', 'product', 'p_name', 'p_size', 'price', 'old_price','amount')
     def get_p_images(self, newproduct):   
         image_id = CartProducts.objects.get(id = newproduct.id)
         my_image = ProductImage.objects.filter(id = image_id.product_image_fk.id)

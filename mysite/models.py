@@ -268,11 +268,14 @@ class CartProducts(models.Model):
     """ 
         Корзина
     """
+    user = models.ForeignKey(MyUser, verbose_name= 'Пользователь', on_delete=models.CASCADE)
     product_image_fk = models.ForeignKey(ProductImage, verbose_name="Фото и цвет", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, verbose_name='Товар', on_delete=models.CASCADE)
     price = models.PositiveIntegerField(verbose_name='Цена', null=True, blank=True)
     old_price = models.PositiveIntegerField(default = 0,verbose_name='Старая цена', null=True, blank=True)
     amount = models.PositiveIntegerField(default=1, verbose_name='Количество', validators=[validate_amount])
+    
+    
     def clean(self, *args, **kwargs):
         my_product =  ProductImage.objects.get(id=self.product_image_fk.id).product
         if my_product!= self.product:
@@ -296,17 +299,24 @@ class Order(models.Model):
     """ 
         Заказы
     """
+    STATUS_CHOISES = (
+        ("new", 'Новый'),
+        ("confirmed", 'Подтвержден'),
+        ("canceled", 'Отменен'),
+        ("finished", 'Завершен'),
+    )
     user = models.ForeignKey(MyUser, verbose_name='Пользователь', on_delete=models.CASCADE)
     amount_lines = models.PositiveIntegerField(verbose_name='Количество линеек', default=0, null = True, blank = True)
     amount_products = models.PositiveIntegerField(verbose_name='Количество товаров', default=0, null = True, blank = True)
     price = models.PositiveIntegerField(verbose_name='Стоимость', default=0, null = True, blank = True)
     discount = models.PositiveIntegerField(verbose_name='Скидка', default=0, null = True, blank = True)
     final_price = models.PositiveIntegerField(verbose_name='Итого к оплате', default=0, null = True, blank = True)
+    date = models.DateField(verbose_name='Дата',auto_now_add=True, blank=True)
+    status = models.CharField(choices=STATUS_CHOISES, max_length=50, verbose_name='Статус заказа', blank=True, default='new')
+    
+    
     def save(self, *args, **kwargs):
         cart_query = CartProducts.objects.all()
-        my_price = 0
-        my_discount = 0
-        my_final = 0
         for item in cart_query:
             self.price += item.old_price * item.amount        
             self.discount += item.old_price* item.amount - item.price * item.amount 
