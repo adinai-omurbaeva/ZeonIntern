@@ -23,18 +23,18 @@ class PublicOfferSerializer(serializers.ModelSerializer):
 
 
 class AboutUsSerializer(serializers.ModelSerializer):
-    about_image = serializers.SerializerMethodField("get_images")
+    about_image = serializers.SerializerMethodField("get_about_images")
     class Meta:
         model = AboutUs
         fields = ('about_image', 'title', 'description')
 
-    """ Получаем все фото """   
-    def get_images(self, about):   
+    """ Получаем все фото """
+    def get_about_images(self, about):
         my_image = AboutUsImage.objects.filter(aboutus=about)
-        final_image = ProductImageSerializer(instance=my_image, many=True)
+        final_image = AboutUsImageSerializer(instance=my_image, many=True)
         return final_image.data
-        
-    
+
+
 class QASerializer(serializers.ModelSerializer):
     class Meta:
         model = QA
@@ -52,7 +52,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('p_image', 'name', 'collection', 'articul', 'price', 'old_price', 'discount', 'description', 'size', 'fabric_structure', 'amount', 'material', 'hit', 'new', 'is_favorite')
-    """ Получаем все фото """ 
+    """ Получаем все фото """
     def get_p_images(self, newproduct):   
         my_image = ProductImage.objects.filter(product=newproduct)
         final_image = ProductImageSerializer(instance = my_image, many = True)
@@ -65,7 +65,7 @@ class SearchProductSerialiser(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('p_image', 'name',  'price', 'old_price', 'discount',  'size', 'is_favorite')
-    """ Получаем все фото """ 
+    """ Получаем все фото """
     def get_p_images(self, newproduct):   
         my_image = ProductImage.objects.filter(product=newproduct)
         final_image = ProductImageSerializer(instance=my_image, many=True)
@@ -78,7 +78,7 @@ class FavoriteProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('p_image', 'name', 'price', 'old_price', 'size', 'is_favorite', 'get_favorites_amount')
-    """ Получаем все фото """ 
+    """ Получаем все фото """
     def get_p_images(self, newproduct):   
         my_image = ProductImage.objects.filter(product=newproduct)
         final_image = ProductImageSerializer(instance = my_image, many = True)
@@ -158,7 +158,8 @@ class CartProductsSerializer(serializers.ModelSerializer):
     class Meta:    
         model = CartProducts
         fields = ('user', 'product_image_fk', 'p_image', 'product', 'p_name', 'p_size', 'price', 'old_price','amount')
-    def get_p_images(self, newproduct):   
+    """Картинки и цвет"""
+    def get_p_images(self, newproduct):
         image_id = CartProducts.objects.get(id=newproduct.id)
         my_image = ProductImage.objects.filter(id=image_id.product_image_fk.id)
         final_image = ProductImageSerializer(instance=my_image, many=True)

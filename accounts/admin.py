@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import MyUser
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+
+
 @admin.register(MyUser)
 class UserAdmin(BaseUserAdmin):
     list_display = ('last_name', 'first_name','email', 'is_admin')

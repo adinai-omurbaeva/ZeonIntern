@@ -64,4 +64,5 @@ urlpatterns = [
     path('api/main/new/', views.MainNewView.as_view()),
     path('api/main/collection/', views.MainCollectionView.as_view()),
     path('api/main/hit/', views.MainHitView.as_view()),
+    path('api/main/advantages/', views.MainAdvantagesView.as_view()),
 ]

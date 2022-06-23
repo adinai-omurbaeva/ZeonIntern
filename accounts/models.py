@@ -55,7 +55,7 @@ class MyUser(AbstractBaseUser):
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.email
+        return '{} : {}'.format(self.id, self.email)
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
@@ -73,4 +73,7 @@ class MyUser(AbstractBaseUser):
         # Simplest possible answer: All admins are staff
         return self.is_admin
 
-    
+    class Meta:
+        verbose_name_plural = 'Пользователи'
+        verbose_name = "Пользователь"
+

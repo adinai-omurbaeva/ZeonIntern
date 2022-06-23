@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django import forms
 from django.shortcuts import redirect
 from .models import (Product, ProductImage, Order, OrderUserInfo,
                      OrderProduct, AboutUsImage, CartProducts, News, Collection, QA,
@@ -7,18 +6,15 @@ from .models import (Product, ProductImage, Order, OrderUserInfo,
                      Advantages, FavoriteHelper)
 
 
-class CategoryChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return "{}".format(obj.name)
-
-
 class ProductInlineAdmin(admin.StackedInline):
+    """ Картинки товара в качестве инлайна """
     extra = 1
     max_num = 8
     model = ProductImage
 
 
 class AboutUsInlineAdmin(admin.StackedInline):
+    """ Картинка инлайн для страницы о нас """
     extra = 1
     max_num = 3
     model = AboutUsImage
@@ -26,11 +22,7 @@ class AboutUsInlineAdmin(admin.StackedInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'collection':
-            return CategoryChoiceField(queryset=Collection.objects.all())
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
+    """ Товар """
     inlines = [ProductInlineAdmin, ]
     search_fields = ('name', 'price')
     list_filter = ('name', 'price')
@@ -42,10 +34,11 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(AboutUs)
 class AboutUsAdmin(admin.ModelAdmin):
+    """ О нас """
     list_display = ('title', 'description')
     inlines = [AboutUsInlineAdmin]
-    """ Добавление только 1 обьекта в целом """
 
+    """ Добавление только 1 обьекта в целом """
     def has_add_permission(self, request):
         if self.model.objects.count() >= 1:
             return False
@@ -54,7 +47,6 @@ class AboutUsAdmin(admin.ModelAdmin):
         return super(AboutUs, self).has_add_permission(request, obj)
 
     """ изменение ссылки сразу на страницу добавить или редактировать """
-
     def changelist_view(self, request, extra_context=None):
         if AboutUs.objects.all().count() == 0:
             return redirect(request.path + "add/")
@@ -64,12 +56,14 @@ class AboutUsAdmin(admin.ModelAdmin):
 
 
 class OrderInlineAdmin(admin.StackedInline):
+    """ Инлайн для юзер инфо (не доп задание) """
     extra = 1
     max_num = 8
     model = Order
 
 
 class OrderProductInline(admin.StackedInline):
+    """ Инлайн для заказа (продукты) """
     extra = 1
     max_num = 1
     model = OrderProduct
@@ -77,12 +71,14 @@ class OrderProductInline(admin.StackedInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    """ Заказ """
     list_display = ('user', 'amount_lines', 'amount_products', 'price', 'discount', 'final_price')
     inlines = [OrderProductInline, ]
 
 
 @admin.register(OrderProduct)
 class OrderProductAdmin(admin.ModelAdmin):
+    """ Заказанные товары """
     list_display = ('order', 'product_image_fk', 'product', 'price', 'old_price')
 
 
@@ -95,36 +91,43 @@ class OrderProductAdmin(admin.ModelAdmin):
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
+    """ Для инлайн """
     get_model_perms = lambda self, req: {}
 
 
 @admin.register(AboutUsImage)
 class AboutUsImageAdmin(admin.ModelAdmin):
+    """ Для инлайн """
     get_model_perms = lambda self, req: {}
 
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
+    """ Новости """
     list_display = ('title', 'image', 'description')
 
 
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
+    """ Коллекции """
     list_display = ('name', 'image')
 
 
 @admin.register(QA)
 class QAAdmin(admin.ModelAdmin):
+    """ Помощь """
     list_display = ('question', 'answer')
 
 
 @admin.register(CartProducts)
 class CartProductsAdmin(admin.ModelAdmin):
+    """ Товары в корзине (по сути является корзиной) """
     list_display = ('product', 'product_image_fk', 'price', 'old_price', 'amount')
 
 
 @admin.register(QAImage)
 class QAImageAdmin(admin.ModelAdmin):
+    """ Картинка страницы помощи """
     list_display = ('image',)
 
     def has_add_permission(self, request):
@@ -146,6 +149,7 @@ class QAImageAdmin(admin.ModelAdmin):
 
 @admin.register(PublicOffer)
 class PublicOfferAdmin(admin.ModelAdmin):
+    """ Публичная оферта """
     list_display = ('title', 'description')
 
     def has_add_permission(self, request):
@@ -165,6 +169,7 @@ class PublicOfferAdmin(admin.ModelAdmin):
 
 @admin.register(MainPage)
 class MainPageAdmin(admin.ModelAdmin):
+    """ Главная страница слайдер """
     list_display = ('link', 'image')
 
     def has_add_permission(self, request):
@@ -184,6 +189,7 @@ class MainPageAdmin(admin.ModelAdmin):
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
+    """ Обратная связь """
     list_display = ('name', 'phone', 'date', 'feedback_type', 'status')
     search_fields = ('name', 'phone')
     list_filter = ('status',)
@@ -192,11 +198,13 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 @admin.register(FooterLink)
 class FooterLinkAdmin(admin.ModelAdmin):
+    """ Футер ссылки """
     list_display = ('link_type', 'link',)
 
 
 @admin.register(Footer)
 class FooterAdmin(admin.ModelAdmin):
+    """ Футер """
     list_display = ("info", 'logo', 'number')
 
     def has_add_permission(self, request):
@@ -216,9 +224,17 @@ class FooterAdmin(admin.ModelAdmin):
 
 @admin.register(Advantages)
 class AdvantagesAdmin(admin.ModelAdmin):
+    """ Преимущества """
     list_display = ('title', 'icon', 'description')
+    def has_add_permission(self, request):
+        if self.model.objects.count() >= 4:
+            return False
+        else:
+            return True
+        return super(AboutUs, self).has_add_permission(request, obj)
 
 
 @admin.register(FavoriteHelper)
 class FavoritesAdmin(admin.ModelAdmin):
+    """ Избранные (доп задание с юзером) """
     list_display = ('product', 'user',)

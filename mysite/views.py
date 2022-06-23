@@ -39,6 +39,7 @@ class FeedbackView(generics.ListAPIView):
 
 
 class FeedbackPostView(generics.CreateAPIView):
+    """ Обратная связь (только пост) """
     queryset = Feedback.objects.all()
     serializer_class = FeedbackCreationSerializer
 
@@ -126,10 +127,10 @@ class SearchProductView(generics.ListAPIView):
 
 
 class FavoriteProductsView(generics.ListAPIView):
-    """ Избранное. Рандомизация как в поиске """
+    """ Избранное.  """
     serializer_class = ProductSerializer
     pagination_class = None
-
+    """ Рандомизация как в поиске (старые избранные) """
     def list(self, request, *args, **kwargs):
         if Product.objects.filter(is_favorite=True).exists():
             queryset = Product.objects.filter(is_favorite=True)
@@ -153,7 +154,7 @@ class ExtraFavoriteProductsView(generics.ListAPIView):
     """ Избранное. Рандомизация как в поиске """
     serializer_class = ProductSerializer
     pagination_class = None
-
+    """ Доп задание. Другая рандомизация """
     def list(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk')
         if FavoriteHelper.objects.filter(user=pk).exists():
@@ -316,17 +317,26 @@ class CartDeleteView(generics.DestroyAPIView):
 
 
 class MainHitView(generics.ListAPIView):
+    """ Главная страница хит продаж """
     queryset = Product.objects.filter(hit=True)
     serializer_class = ProductSerializer
 
 
 class MainNewView(generics.ListAPIView):
+    """ Главная страница новинки """
     queryset = Product.objects.filter(new=True)
     serializer_class = ProductSerializer
     pagination_class = FourPagination
 
 
 class MainCollectionView(generics.ListAPIView):
-    queryset = Collection.objects.filter()
+    """ Главная страница коллекции """
+    queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
     pagination_class = FourPagination
+
+
+class MainAdvantagesView(generics.ListAPIView):
+    """ Главная страница преимущества (без пагинации тк в админ уже стоит ограничение на 4) """
+    queryset = Advantages.objects.all()
+    serializer_class = AdvantagesSerializer
