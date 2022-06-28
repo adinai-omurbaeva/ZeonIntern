@@ -16,7 +16,6 @@ Including another URLconf
 from django.urls import include, path
 from rest_framework import routers
 from . import views
-from rest_framework_swagger.views import get_swagger_view
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
@@ -24,9 +23,7 @@ from rest_framework import permissions
 
 router = routers.DefaultRouter()
 router.register(r'product', views.ProductView)
-router.register(r'feedback', views.FeedbackView)
 router.register(r'order', views.OrderCreateViewSet)
-router.register(r'cart', views.CartViewSet)
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -56,5 +53,16 @@ urlpatterns = [
     path('api/collectiondetail/<int:pk>/', views.CollectionDetailViewSet.as_view()),
     path('api/newproductslist', views.NewProductsViewSet.as_view()),
     path('api/search/', views.SearchProductView.as_view()),
-    path('api/collection/', views.CollectionViewSet.as_view())
+    path('api/collection/', views.CollectionViewSet.as_view()),
+    path('api/cart/<int:pk>/', views.CartViewSet.as_view()),
+    path('api/cartdelete/<int:pk>/<int:userpk>/', views.CartDeleteView.as_view()),
+    path('api/favoriteextra/<int:pk>/', views.ExtraFavoriteProductsView.as_view()),
+    path('api/orderextra/', views.ExtraOrderCreateView.as_view()),
+    path('api/orderhistory/', views.ExtraOrderHistoryListView.as_view()),
+    path('api/feedback/', views.FeedbackView.as_view()),
+    path('api/feedback/new/', views.FeedbackPostView.as_view()),
+    path('api/main/new/', views.MainNewView.as_view()),
+    path('api/main/collection/', views.MainCollectionView.as_view()),
+    path('api/main/hit/', views.MainHitView.as_view()),
+    path('api/main/advantages/', views.MainAdvantagesView.as_view()),
 ]
