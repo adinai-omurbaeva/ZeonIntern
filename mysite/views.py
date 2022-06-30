@@ -1,6 +1,5 @@
 from rest_framework import viewsets
 from rest_framework import generics
-from rest_framework.views import APIView
 from .serializers import (CollectionSerializer, AdvantagesSerializer, NewsSerializer,
                           PublicOfferSerializer, AboutUsSerializer, QAImageSerializer, QASerializer,
                           ProductSerializer, FeedbackSerializer, FooterSerializer, FooterLinkSerializer,
@@ -44,7 +43,7 @@ class FeedbackPostView(generics.CreateAPIView):
     serializer_class = FeedbackCreationSerializer
 
 
-class QAAPIView(APIView):
+class QAAPIView(ObjectMultipleModelAPIView):
     """ Помощь (вопросы и ответы) """
     pagination_class = None
     querylist = [
